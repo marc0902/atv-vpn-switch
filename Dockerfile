@@ -9,10 +9,9 @@ RUN apk add --no-cache \
         iptables \
         iptables-legacy \
         conntrack-tools \
-    && wg --version \
-    && iptables-nft --version \
-    && iptables-legacy --version \
-    && conntrack --version
+    && for b in wg ip iptables-nft iptables-nft-save iptables-legacy iptables-legacy-save conntrack; do \
+         command -v "$b" >/dev/null || { echo "fehlt: $b"; exit 1; }; \
+       done
 
 ENV PYTHONPATH=/app \
     PYTHONUNBUFFERED=1 \
