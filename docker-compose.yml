@@ -1,0 +1,36 @@
+# Für Portainer → Stacks → Add stack.
+# Werte werden unter "Environment variables" im Stack gepflegt (siehe stack.env.example).
+services:
+  atv-vpn-switch:
+    image: ghcr.io/marc0902/atv-vpn-switch:latest
+    container_name: atv-vpn-switch
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    restart: unless-stopped
+    environment:
+      ATV_IP: ${ATV_IP:?ATV_IP fehlt - bitte im Stack setzen}
+      LAN_CIDR: ${LAN_CIDR:-192.168.178.0/24}
+      LAN_IF: ${LAN_IF:-}
+      CONFIG_DIR: /config
+      WG_TABLE: ${WG_TABLE:-51820}
+      WEB_PORT: ${WEB_PORT:-8099}
+      WEB_PASSWORD: ${WEB_PASSWORD:-}
+      KILLSWITCH: ${KILLSWITCH:-true}
+      AUTO_RESET_TIME: ${AUTO_RESET_TIME-03:00}
+      AUTO_FAILOVER: ${AUTO_FAILOVER:-false}
+      TZ: ${TZ:-Europe/Berlin}
+      WG_PRIVATE_KEY: ${WG_PRIVATE_KEY:-}
+      WG_ADDRESS: ${WG_ADDRESS:-}
+      WG_PEER_PUBLIC_KEY: ${WG_PEER_PUBLIC_KEY:-}
+      WG_ENDPOINT: ${WG_ENDPOINT:-}
+    volumes:
+      - ${CONFIG_PATH:-/home/pi/atv-vpn/config}:/config
+      - /lib/modules:/lib/modules:ro
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import os,urllib.request; urllib.request.urlopen('http://127.0.0.1:%s/healthz' % os.environ.get('WEB_PORT','8099'), timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3

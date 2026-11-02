@@ -1,0 +1,7 @@
+*.env
+!stack.env.example
+*.conf
+config/
+__pycache__/
+*.pyc
+.pytest_cache/
